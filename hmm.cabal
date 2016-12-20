@@ -3,7 +3,7 @@
 
 name:                hmm
 version:             1.0.0
-synopsis:            Libary containing a datastructure, parsing and visualisation functions for Hidden Markov Models in HMMER3 format. 
+synopsis:            Libary containing parsing and visualisation functions and datastructures for Hidden Markov Models in HMMER3 format. 
 -- description:         
 license:             GPL-3
 license-file:        LICENSE
