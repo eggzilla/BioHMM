@@ -1,4 +1,4 @@
-name:                HMM
+name:                BioHMM
 version:             1.0.0
 synopsis:            Libary containing parsing and visualisation functions and datastructures for Hidden Markov Models in HMMER3 format. 
 -- description:         
