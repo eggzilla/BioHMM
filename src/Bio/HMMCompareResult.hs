@@ -17,9 +17,7 @@ module Bio.HMMCompareResult
      getModelNames
     ) where
 
-import Text.ParserCombinators.Parsec 
-import Text.ParserCombinators.Parsec.Token
-import Text.ParserCombinators.Parsec.Language (emptyDef)    
+import Text.ParserCombinators.Parsec     
 import Control.Monad
 
 -- | Datastructure for result strings of comparisons between covariance models by HMMCompare
@@ -56,13 +54,6 @@ readDouble = read
 readInt :: String -> Int
 readInt = read
 
--- | Parse a floating point number.
-parseFloat :: GenParser Char st Double
-parseFloat = do sign <- option 1 (do s <- oneOf "+-"
-                                     return $ if s == '-' then-1.0 else 1.0)
-                x  <- float $ makeTokenParser emptyDef
-                return $ sign * x
-
 -- | Parse a HMMCompare result string
 genParseHMMCompareResult :: GenParser Char st HMMCompareResult
 genParseHMMCompareResult = do
@@ -98,9 +89,9 @@ getHMMCompareResults :: FilePath -> IO [Either ParseError HMMCompareResult]
 getHMMCompareResults filePath = let
         fp = filePath
         doParseLine' = parse genParseHMMCompareResult "genParseHMMCompareResults"
-        doParseLine l = case (doParseLine' l) of
-            Right x -> x
-            Left _  -> error "Failed to parse line"
+        --doParseLine l = case (doParseLine' l) of
+        --    Right x -> x
+        --    Left _  -> error "Failed to parse line"
     in do
         fileContent <- liftM lines $ readFile fp
         return $ map doParseLine' fileContent
