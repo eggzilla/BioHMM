@@ -1,7 +1,7 @@
 name:                BioHMM
 version:             1.0.1
-synopsis:            Libary containing parsing and visualisation functions and datastructures for Hidden Markov Models in HMMER3 format. 
--- description:         
+synopsis:            Libary for Hidden Markov Models in HMMER3 format. 
+description:         Libary containing parsing and visualisation functions and datastructures for Hidden Markov Models in HMMER3 format.  
 license:             GPL-3
 license-file:        LICENSE
 author:              Florian Eggenhofer
