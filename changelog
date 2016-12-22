@@ -1,3 +1,5 @@
 -*-change-log-*-
+1.0.1 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 22. December 2016
+        * Bugfix - added Bio.HMMCompare to exported modules
 1.0.0 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 22. December 2016
         * Initial release
