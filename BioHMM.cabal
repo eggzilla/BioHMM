@@ -28,6 +28,7 @@ library
   exposed-modules:   Bio.HMMData
                      Bio.HMMParser
                      Bio.HMMDraw
+		     Bio.HMMCompare
 
   -- compiler-options:
   ghc-options:         -Wall -O2 -fno-warn-unused-do-bind
