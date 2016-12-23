@@ -34,7 +34,7 @@ library
   ghc-options:         -Wall -O2 -fno-warn-unused-do-bind
 
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.5 && <5, parsec>=3.1.9, diagrams-lib, text, vector, ParsecTools, diagrams-cairo, filepath, colour, directory, either-unwrap, SVGFonts >= 1.6, StockholmAlignment
+  build-depends:       base >=4.5 && <5, parsec>=3.1.9, diagrams-lib>=1.4.0.1, text, vector, ParsecTools, diagrams-cairo>=1.4, filepath, colour, directory, either-unwrap, SVGFonts >= 1.6, StockholmAlignment
   
   -- Directories containing source files.
   hs-source-dirs:      src
