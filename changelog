@@ -1,4 +1,6 @@
 -*-change-log-*-
+1.0.3 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 29. December 2016
+        * Bugfix - reverted broken setting of svgsize
 1.0.2 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 29. December 2016
         * Added size scaling to HMM drawing functions
 1.0.1 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 22. December 2016
