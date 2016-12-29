@@ -98,7 +98,7 @@ drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype (model,a
            nodeNumberPerRow = floor (maxWidth / nodeWidth - 2)
            nodesIntervals = makeNodeIntervals nodeNumberPerRow nodeNumber
            verboseNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawDetailedNodeRow alphabetSymbols emissiontype boxlength nodeNumber currentNodes comparisonNodeLabels) nodesIntervals))
-           verboseNodesAlignment = alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes,alignmentDiagram])
+           verboseNodesAlignment = (alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes,alignmentDiagram])) 
            modelHeader = makeModelHeader (HM.name model) modelColor
            alignmentDiagram = if isJust aln then drawStockholmLines entriesNumberCutoff maxWidth nodeAlignmentColIndices comparisonNodeLabels (fromJust aln) else mempty
            --connectedNodes = makeConnections boxlength currentNodes
@@ -325,7 +325,7 @@ bar :: Double -> QDiagram Cairo V2 Double Any
 bar emission = (rect (4 * emission) 1 # lw 0 # fc black # translate (r2 (negate (2 - (4 * emission/2)),0)) <> rect 4 1 # lw 0.03 )
 
 svgsize :: SizeSpec V2 Double
-svgsize = mkSizeSpec2D (Just 2) (Just 2)
+svgsize = mkSizeSpec2D Nothing Nothing
 
 -- | Check for available cairo output formats
 diagramName :: String -> String -> Either String String
