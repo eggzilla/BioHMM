@@ -32,12 +32,12 @@ import Data.List
 import Graphics.SVGFonts
 import Bio.StockholmFont
 
-drawHMMComparison :: String -> Int -> String -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> QDiagram Cairo V2 Double Any
-drawHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth hmms alns comparisons
-   | modelDetail == "flat" = alignTL (vcat' with { _sep = 8 } (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput))
-   | modelDetail == "simple" = alignTL (vcat' with { _sep = 8 } (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput))
-   | modelDetail == "detailed" = alignTL (vcat' with { _sep = 40 } (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput))
-   | otherwise = alignTL (vcat' with { _sep = 40 } (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput))
+drawHMMComparison :: String -> Int -> String -> Double -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> QDiagram Cairo V2 Double Any
+drawHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth scalef hmms alns comparisons
+   | modelDetail == "flat" = alignTL (vcat' with { _sep = 8 * scalef} (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput))
+   | modelDetail == "simple" = alignTL (vcat' with { _sep = 8 * scalef} (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput))
+   | modelDetail == "detailed" = alignTL (vcat' with { _sep = 40 * scalef} (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput))
+   | otherwise = alignTL (vcat' with { _sep = 40 * scalef} (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput))
      where zippedInput = zip4 hmms alns comparisonNodeLabels (V.toList colorVector)
            colorVector = makeColorVector modelNumber
            modelNumber = length hmms
@@ -45,12 +45,12 @@ drawHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth hmms alns 
            nameColorVector = V.zipWith (\a b -> (a,b)) modelNames colorVector
            comparisonNodeLabels = map (getComparisonNodeLabels comparisons nameColorVector) hmms
 
-drawSingleHMMComparison :: String -> Int -> String -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> [QDiagram Cairo V2 Double Any]
-drawSingleHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth hmms alns comparisons
-   | modelDetail == "flat" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput
-   | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput
-   | modelDetail == "detailed" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput
-   | otherwise = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput
+drawSingleHMMComparison :: String -> Int -> String -> Double -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> [QDiagram Cairo V2 Double Any]
+drawSingleHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth scalef hmms alns comparisons
+   | modelDetail == "flat" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
+   | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
+   | modelDetail == "detailed" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
+   | otherwise = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
      where zippedInput = zip4 hmms alns comparisonNodeLabels (V.toList colorVector)
            colorVector = makeColorVector modelNumber
            modelNumber = length hmms
@@ -59,33 +59,33 @@ drawSingleHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth hmms
            comparisonNodeLabels = map (getComparisonNodeLabels comparisons nameColorVector) hmms
                         
 -- | 
-drawHMMER3s :: String -> Int -> Double -> String -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> QDiagram Cairo V2 Double Any
-drawHMMER3s modelDetail entryNumberCutoff maxWidth emissiontype hmms alns 
-  | modelDetail == "flat" = alignTL (vcat' with { _sep = 8 } (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput))
-  | modelDetail == "simple" = alignTL (vcat' with { _sep = 8 } (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput))
-  | modelDetail == "detailed" = alignTL (vcat' with { _sep = 40 } (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput))
-  | otherwise = alignTL (vcat' with { _sep = 40 } (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput))
+drawHMMER3s :: String -> Int -> Double -> Double -> String -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> QDiagram Cairo V2 Double Any
+drawHMMER3s modelDetail entryNumberCutoff maxWidth scalef emissiontype hmms alns 
+  | modelDetail == "flat" = alignTL (vcat' with { _sep = 8 * scalef} (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput))
+  | modelDetail == "simple" = alignTL (vcat' with { _sep = 8 * scalef} (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput))
+  | modelDetail == "detailed" = alignTL (vcat' with { _sep = 40 * scalef} (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput))
+  | otherwise = alignTL (vcat' with { _sep = 40 } (map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput))
     where zippedInput = zip4 hmms alns blankComparisonNodeLabels colorList
           blankComparisonNodeLabels = map getBlankComparisonNodeLabels hmms
           colorList = replicate (length hmms) white
 
-drawSingleHMMER3s :: String -> Int -> Double -> String -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [QDiagram Cairo V2 Double Any]
-drawSingleHMMER3s modelDetail entryNumberCutoff maxWidth emissiontype hmms alns 
-  | modelDetail == "flat" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput
-  | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput
-  | modelDetail == "detailed" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput
-  | otherwise = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth emissiontype) zippedInput
+drawSingleHMMER3s :: String -> Int -> Double -> Double -> String -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [QDiagram Cairo V2 Double Any]
+drawSingleHMMER3s modelDetail entryNumberCutoff maxWidth scalef emissiontype hmms alns 
+  | modelDetail == "flat" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
+  | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
+  | modelDetail == "detailed" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
+  | otherwise = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
     where zippedInput = zip4 hmms alns blankComparisonNodeLabels colorList
           blankComparisonNodeLabels = map getBlankComparisonNodeLabels hmms
           colorList = replicate (length hmms) white
 
 
 -- |
-drawHMMER3 :: String -> Int -> Double -> String -> (HM.HMMER3,Maybe S.StockholmAlignment, V.Vector (Int,V.Vector (Colour Double)), Colour Double) -> QDiagram Cairo V2 Double Any
-drawHMMER3 modelDetail entriesNumberCutoff maxWidth emissiontype (model,aln,comparisonNodeLabels,modelColor)
-   | modelDetail == "flat" = hcat $ V.toList (V.map drawHMMNodeFlat currentNodes)
-   | modelDetail == "simple" = hcat $ V.toList (V.map drawHMMNodeSimple currentNodes)
-   | modelDetail == "detailed" = applyAll ([bg white]) verboseNodesAlignment
+drawHMMER3 :: String -> Int -> Double -> Double -> String -> (HM.HMMER3,Maybe S.StockholmAlignment, V.Vector (Int,V.Vector (Colour Double)), Colour Double) -> QDiagram Cairo V2 Double Any
+drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype (model,aln,comparisonNodeLabels,modelColor)
+   | modelDetail == "flat" = (hcat $ V.toList (V.map drawHMMNodeFlat currentNodes)) # scale scalef 
+   | modelDetail == "simple" = (hcat $ V.toList (V.map drawHMMNodeSimple currentNodes)) # scale scalef
+   | modelDetail == "detailed" = (applyAll ([bg white]) verboseNodesAlignment) # scale scalef
    | otherwise = hcat $ V.toList (V.map drawHMMNodeSimple currentNodes)
      where nodeNumber = fromIntegral $ length currentNodes
            --nodes with begin node
@@ -325,7 +325,7 @@ bar :: Double -> QDiagram Cairo V2 Double Any
 bar emission = (rect (4 * emission) 1 # lw 0 # fc black # translate (r2 (negate (2 - (4 * emission/2)),0)) <> rect 4 1 # lw 0.03 )
 
 svgsize :: SizeSpec V2 Double
-svgsize = mkSizeSpec2D Nothing Nothing
+svgsize = mkSizeSpec2D (Just 2) (Just 2)
 
 -- | Check for available cairo output formats
 diagramName :: String -> String -> Either String String
