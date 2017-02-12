@@ -6,14 +6,14 @@
 
 module Bio.HMMDraw
     (
-      drawHMMER3s,
+      --drawHMMER3s,
       drawHMMER3,
       drawSingleHMMER3s,
       svgsize,
       diagramName,
       printHMM,
       getComparisonsHighlightParameters,
-      drawHMMComparison,
+      --drawHMMComparison,
       drawSingleHMMComparison
     ) where
   
@@ -45,7 +45,7 @@ import Bio.StockholmFont
 --            nameColorVector = V.zipWith (\a b -> (a,b)) modelNames colorVector
 --            comparisonNodeLabels = map (getComparisonNodeLabels comparisons nameColorVector) hmms
 
-drawSingleHMMComparison :: String -> Int -> String -> Double -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> [QDiagram Cairo V2 Double Any]
+drawSingleHMMComparison :: String -> Int -> String -> Double -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> [(QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)]
 drawSingleHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth scalef hmms alns comparisons
    | modelDetail == "flat" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
    | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
@@ -69,7 +69,7 @@ drawSingleHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth scal
 --           blankComparisonNodeLabels = map getBlankComparisonNodeLabels hmms
 --           colorList = replicate (length hmms) white
 
-drawSingleHMMER3s :: String -> Int -> Double -> Double -> String -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [QDiagram Cairo V2 Double Any]
+drawSingleHMMER3s :: String -> Int -> Double -> Double -> String -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [(QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)]
 drawSingleHMMER3s modelDetail entryNumberCutoff maxWidth scalef emissiontype hmms alns 
   | modelDetail == "flat" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
   | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype) zippedInput
@@ -79,16 +79,14 @@ drawSingleHMMER3s modelDetail entryNumberCutoff maxWidth scalef emissiontype hmm
           blankComparisonNodeLabels = map getBlankComparisonNodeLabels hmms
           colorList = replicate (length hmms) white
 
-
 -- |
 drawHMMER3 :: String -> Int -> Double -> Double -> String -> (HM.HMMER3,Maybe S.StockholmAlignment, V.Vector (Int,V.Vector (Colour Double)), Colour Double) -> (QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)
 drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype (model,aln,comparisonNodeLabels,modelColor)
-   | modelDetail == "flat" = (hcat $ V.toList (V.map drawHMMNodeFlat currentNodes)) # scale scalef 
-   | modelDetail == "simple" = (hcat $ V.toList (V.map drawHMMNodeSimple currentNodes)) # scale scalef
-   | modelDetail == "detailed" = (applyAll ([bg white]) verboseNodesAlignment) # scale scalef
-   | otherwise = hcat $ V.toList (V.map drawHMMNodeSimple currentNodes)
-     where
-           nodeNumber = fromIntegral $ length currentNodes
+   | modelDetail == "flat" = (((applyAll ([bg white]) flatNodesHeader) # scale scalef),alignmentDiagram)
+   | modelDetail == "simple" = (((applyAll ([bg white]) simpleNodesHeader) # scale scalef),alignmentDiagram)
+   | modelDetail == "detailed" = (((applyAll ([bg white]) verboseNodesHeader) # scale scalef),alignmentDiagram)
+   | otherwise = (((applyAll ([bg white]) verboseNodesHeader) # scale scalef),alignmentDiagram)
+     where nodeNumber = fromIntegral $ length currentNodes
            --nodes with begin node
            currentNodes = HM.begin model `V.cons` HM.nodes model
            nodeAlignmentColIndices =  V.map (fromJust . HM.nma) currentNodes
@@ -98,10 +96,12 @@ drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype (model,a
            nodeWidth = (6.0 :: Double)
            nodeNumberPerRow = floor (maxWidth / nodeWidth - 2)
            nodesIntervals = makeNodeIntervals nodeNumberPerRow nodeNumber
-           verboseNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawDetailedNodeRow alphabetSymbols emissiontype boxlength nodeNumber currentNodes comparisonNodeLabels) nodesIntervals))
-           flatNodesHeader = (alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes]))
-           simpleNodesHeader = (alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes]))
-           verboseNodesHeader = (alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes]) 
+           flatNodes = (hcat $ V.toList (V.map drawHMMNodeFlat currentNodes)) # scale scalef
+           simpleNodes = (hcat $ V.toList (V.map drawHMMNodeSimple currentNodes)) # scale scalef
+           verboseNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawDetailedNodeRow alphabetSymbols emissiontype boxlength nodeNumber currentNodes comparisonNodeLabels) nodesIntervals))          
+           flatNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,flatNodes])
+           simpleNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,simpleNodes])
+           verboseNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes]) 
            modelHeader = makeModelHeader (HM.name model) modelColor
            alignmentDiagram = if isJust aln then drawStockholmLines entriesNumberCutoff maxWidth nodeAlignmentColIndices comparisonNodeLabels (fromJust aln) else mempty
            --connectedNodes = makeConnections boxlength currentNodes
