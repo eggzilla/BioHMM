@@ -1,4 +1,4 @@
-#Copied as is from https://www.fpcomplete.com/blog/2016/02/updated-haskell-travis-config 
+#Adopted from https://www.fpcomplete.com/blog/2016/02/updated-haskell-travis-config 
 #Copy these contents into the root directory of your Github project in a file
 # named .travis.yml
 
@@ -31,16 +31,16 @@ matrix:
   # https://github.com/hvr/multi-ghc-travis
   - env: BUILD=cabal GHCVER=7.6.3 CABALVER=1.16
     compiler: ": #GHC 7.6.3"
-    addons: {apt: {packages: [cabal-install-1.16,ghc-7.6.3], sources: [hvr-ghc]}}
+    addons: {apt: {packages: [cabal-install-1.16,ghc-7.6.3,alex], sources: [hvr-ghc]}}
   - env: BUILD=cabal GHCVER=7.8.4 CABALVER=1.18
     compiler: ": #GHC 7.8.4"
-    addons: {apt: {packages: [cabal-install-1.18,ghc-7.8.4], sources: [hvr-ghc]}}
+    addons: {apt: {packages: [cabal-install-1.18,ghc-7.8.4,alex], sources: [hvr-ghc]}}
   - env: BUILD=cabal GHCVER=7.10.3 CABALVER=1.22
     compiler: ": #GHC 7.10.3"
-    addons: {apt: {packages: [cabal-install-1.22,ghc-7.10.3], sources: [hvr-ghc]}}
+    addons: {apt: {packages: [cabal-install-1.22,ghc-7.10.3,alex], sources: [hvr-ghc]}}
   - env: BUILD=cabal GHCVER=8.0.1 CABALVER=1.24
     compiler: ": #GHC 8.0.1"
-    addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.1], sources: [hvr-ghc]}}
+    addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.1,alex], sources: [hvr-ghc]}}
 
   # The Stack builds. We can pass in arbitrary Stack arguments via the ARGS
   # variable, such as using --stack-yaml to point to a different file.
