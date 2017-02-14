@@ -1,4 +1,7 @@
 -*-change-log-*-
+1.0.4 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 13. February 2017
+        * Enabled separate output of stockholm alignment visualisation
+	* Removed concatenated model visualisation
 1.0.3 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 29. December 2016
         * Bugfix - reverted broken setting of svgsize
 1.0.2 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 29. December 2016
