@@ -62,7 +62,7 @@ drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype (model,a
    | modelDetail == "simple" = ((applyAll ([bg white]) simpleNodesHeader) # scale scalef,alignmentDiagram)
    | modelDetail == "detailed" = ((applyAll ([bg white]) verboseNodesHeader) # scale scalef,alignmentDiagram)
    | otherwise = ((applyAll ([bg white]) verboseNodesHeader) # scale scalef,alignmentDiagram)
-     where nodeNumber = fromIntegral $ length currentNodes
+     where nodeNumber = fromIntegral $ V.length currentNodes
            --nodes with begin node
            currentNodes = HM.begin model `V.cons` HM.nodes model
            nodeAlignmentColIndices =  V.map (fromJust . HM.nma) currentNodes
@@ -343,14 +343,14 @@ getComparisonNodeLabels comparsionResults colorVector model = comparisonNodeLabe
          modelNodeInterval2 = map (\a -> (model1Name a,model1matchednodes a)) relevantComparisons2
          modelNodeIntervals =  V.fromList (modelNodeInterval1 ++ modelNodeInterval2)
          colorNodeIntervals = V.map (modelToColor colorVector) modelNodeIntervals
-         nodeNumber = length (HM.nodes model)
+         nodeNumber = V.length (HM.nodes model)
          comparisonNodeLabels = V.generate (nodeNumber +1) (makeComparisonNodeLabel colorNodeIntervals)
          --nodeColorLabels = map model colorNodeIntervals
 
 getBlankComparisonNodeLabels :: HM.HMMER3 -> V.Vector (Int, V.Vector (Colour Double))
 getBlankComparisonNodeLabels model = comparisonNodeLabels
    where comparisonNodeLabels = V.generate (nodeNumber +1 )  makeBlankComparisonNodeLabel
-         nodeNumber = length (HM.nodes model)
+         nodeNumber = V.length (HM.nodes model)
 
 modelToColor :: V.Vector (String,Colour Double) ->  (String,[Int]) -> (Colour Double,[Int])
 modelToColor colorVector (mName,nInterval) = nColorInterval
@@ -362,7 +362,7 @@ makeComparisonNodeLabel :: V.Vector (Colour Double,[Int]) -> Int -> (Int,V.Vecto
 makeComparisonNodeLabel colorNodeIntervals nodeNumber = comparisonNodeLabel
   where relevantColorNodeIntervals = V.filter (\(_,b) -> elem nodeNumber b) colorNodeIntervals
         modelColors = V.map fst relevantColorNodeIntervals
-        comparisonNodeLabel = if null modelColors then (nodeNumber,V.singleton white) else (nodeNumber,modelColors)
+        comparisonNodeLabel = if V.null modelColors then (nodeNumber,V.singleton white) else (nodeNumber,modelColors)
 
 makeBlankComparisonNodeLabel :: Int -> (Int,V.Vector (Colour Double))
 makeBlankComparisonNodeLabel nodeNumber = (nodeNumber,V.singleton white)
