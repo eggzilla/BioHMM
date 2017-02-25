@@ -72,8 +72,8 @@ drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype (model,a
            nodeWidth = 6.0 :: Double
            nodeNumberPerRow = floor (maxWidth / nodeWidth - 2)
            nodesIntervals = makeNodeIntervals nodeNumberPerRow nodeNumber
-           flatNodes = hcat (V.toList (V.map drawHMMNodeFlat currentNodes)) # scale scalef
-           simpleNodes = hcat (V.toList (V.map drawHMMNodeSimple currentNodes)) # scale scalef
+           flatNodes = hcat (V.toList (V.map (drawHMMNodeFlat comparisonNodeLabels)currentNodes)) # scale scalef
+           simpleNodes = hcat (V.toList (V.map (drawHMMNodeSimple comparisonNodeLabels) currentNodes)) # scale scalef
            verboseNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawDetailedNodeRow alphabetSymbols emissiontype boxlength nodeNumber currentNodes comparisonNodeLabels) nodesIntervals))
            flatNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,flatNodes])
            simpleNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,simpleNodes])
@@ -199,13 +199,19 @@ makeSelfLabel (n1,n2,weight,(xOffset,yOffset))=
       atop (position [(midpoint # translateX (negate 0.25 + xOffset) # translateY (0 + yOffset), setLabelLetter (show weight))])
 
 -- | 
-drawHMMNodeFlat :: HM.HMMER3Node -> QDiagram Cairo V2 Double Any
-drawHMMNodeFlat _ = rect 2 2 # lw 0.1
-
+drawHMMNodeFlat :: V.Vector (Int, V.Vector (Colour Double)) -> HM.HMMER3Node ->  QDiagram Cairo V2 Double Any
+drawHMMNodeFlat  comparisonNodeLabels node = rect 2 2 # lw 0.1
+  where idNumber = HM.nodeId node
+        nid  = show idNumber
+        nodeLabels = V.toList (snd (comparisonNodeLabels V.! idNumber))
+        nodeBox = simpleIdBox nid nodeLabels
 -- | 
-drawHMMNodeSimple :: HM.HMMER3Node -> QDiagram Cairo V2 Double Any
-drawHMMNodeSimple _ = rect 2 2 # lw 0.1
-
+drawHMMNodeSimple ::  V.Vector (Int, V.Vector (Colour Double)) -> HM.HMMER3Node -> QDiagram Cairo V2 Double Any
+drawHMMNodeSimple  comparisonNodeLabels node = nodeBox --rect 2 2 # lw 0.1
+  where idNumber = HM.nodeId node
+        nid  = show idNumber
+        nodeLabels = V.toList (snd (comparisonNodeLabels V.! idNumber))
+        nodeBox = simpleIdBox nid nodeLabels
 -- | 
 drawHMMNodeVerbose :: String -> String -> Double -> Int -> Int -> Int -> V.Vector (Int, V.Vector (Colour Double))-> HM.HMMER3Node -> QDiagram Cairo V2 Double Any
 drawHMMNodeVerbose alphabetSymbols emissiontype boxlength rowStart rowEnd lastIndex comparisonNodeLabels node
@@ -224,7 +230,10 @@ drawHMMNodeVerbose alphabetSymbols emissiontype boxlength rowStart rowEnd lastIn
 -- | idBox associates the node with its index and a tupel of  a list of modelidentifiers and the total model number
 --idBox nid nodeLabels = alignedText 0 0 nid # fontSize 2  # translate (r2 ((negate ((fromIntegral ((length nid) * 2))/2)), negate 1.25))
 idBox :: String -> [Colour Double] -> QDiagram Cairo V2 Double Any
-idBox nid nodeLabels = text' nid # translate (r2 (negate ((fromIntegral ((length nid) * 2))/2), negate 1.25)) <>  wheel nodeLabels <> rect 1.5 3 # lw 0
+idBox nid nodeLabels = text' nid  <>  wheel nodeLabels <> rect 1.5 3 # lw 0
+-- # translate (r2 (negate ((fromIntegral ((length nid) * 2))/2), negate 1.25))
+simpleIdBox :: String -> [Colour Double] -> QDiagram Cairo V2 Double Any
+simpleIdBox nid nodeLabels = text' nid <>  wheel nodeLabels <> rect 1.5 3 # lw 0.1
 
 emptyIdBox :: QDiagram Cairo V2 Double Any
 emptyIdBox = rect 1.5 1.5 # lw 0
@@ -238,11 +247,13 @@ rowEndBox idNumber boxlength = rect 0.1 1.5 #lw 0.0 === rect 0.1 6 # lw 0.1 # na
   where nid = show (idNumber + 1)
 
 deletions :: String -> QDiagram Cairo V2 Double Any
-deletions nid =  alignedText 0 0 "D" # translate (r2 (negate 0.25,0.25)) <> circle 3 # lw 0.1 # fc white # named (nid ++ "d")
+--deletions nid =  alignedText 0 0 "D" # translate (r2 (negate 0.25,0.25)) <> circle 3 # lw 0.1 # fc white # named (nid ++ "d")
+deletions nid =  text' "D" <> circle 3 # lw 0.1 # fc white # named (nid ++ "d")
 emptyDeletions :: QDiagram Cairo V2 Double Any
 emptyDeletions = circle 3 # lw 0.0 # fc white
 insertions :: String -> QDiagram Cairo V2 Double Any
-insertions nid = alignedText 0 0 "I" # translate (r2 (0,0.25)) <> rect 4.2426 4.2426 # lw 0.1 # rotateBy (1/8) # fc white # named (nid ++ "i")
+--insertions nid = alignedText 0 0 "I" # translate (r2 (0,0.25)) <> rect 4.2426 4.2426 # lw 0.1 # rotateBy (1/8) # fc white # named (nid ++ "i")
+insertions nid =  text' "I" <> rect 4.2426 4.2426 # lw 0.1 # rotateBy (1/8) # fc white # named (nid ++ "i")
 
 emptyInsertions :: QDiagram Cairo V2 Double Any
 emptyInsertions = rect 4.2426 4.2426 # lw 0 # rotateBy (1/8) # fc white
@@ -266,11 +277,13 @@ wheel colors = wheel' # rotate r
 
 -- B → M 1 , B → I 0 , B → D 1 ; I 0 → M 1 , I 0 → I 0
 beginState :: Double -> String -> QDiagram Cairo V2 Double Any
-beginState boxlength nid = alignedText 0.5 0.5 "BEGIN" <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1
+--beginState boxlength nid = alignedText 0.5 0.5 "BEGIN" <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1
+beginState boxlength nid = textWithSize' "BEGIN" 2 <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1
   where outerbox = rect 6 boxlength # lw 0.1 # fc white
 
 endState :: Double -> Int -> QDiagram Cairo V2 Double Any
-endState boxlength idNumber = alignedText 0.5 0.5 "END" <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1 <> rect 6 boxlength # named (nid ++ "i")  # lw 0.1
+--endState boxlength idNumber = alignedText 0.5 0.5 "END" <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1 <> rect 6 boxlength # named (nid ++ "i")  # lw 0.1
+endState boxlength idNumber = textWithSize' "END" 2 <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1 <> rect 6 boxlength # named (nid ++ "i")  # lw 0.1
   where outerbox = rect 6 boxlength # lw 0.1 # fc white
         nid = show (idNumber + 1)
 
@@ -296,9 +309,11 @@ emissionEntry emissiontype (symbol,emission)
   | emissiontype == "score" = textentry
   | emissiontype == "bar" = barentry
   | otherwise = barentry
-    where textentry = alignedText 0 0.1 (symbol ++ " " ++ printf "%.3f" emission) # translate (r2 (negate 0.5,0)) <> (rect 2 1 # lw 0 )
+    where --textentry = alignedText 0 0.1 (symbol ++ " " ++ printf "%.3f" emission) # translate (r2 (negate 0.5,0)) <> (rect 2 1 # lw 0 )
+          textentry = textWithSize' (symbol ++ " " ++ printf "%.3f" emission) 1
           --barentry =  stroke (textSVG symbol 2) ||| bar emission
-          barentry = (alignedText 0 0.01 symbol  # translate (r2 (negate 0.25,negate 0.3)) <> (rect 2 1 # lw 0 )) ||| bar emission
+          --barentry = (alignedText 0 0.01 symbol  # translate (r2 (negate 0.25,negate 0.3)) <> (rect 2 1 # lw 0 )) ||| bar emission
+          barentry = textWithSize' symbol 1  ||| strutX 0.2 ||| bar emission
 
 bar :: Double -> QDiagram Cairo V2 Double Any
 bar emission = rect (4 * emission) 1 # lw 0 # fc black # translate (r2 (negate (2 - (4 * emission/2)),0)) <> rect 4 1 # lw 0.03
