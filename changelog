@@ -1,12 +1,15 @@
 -*-change-log-*-
+1.0.5 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 26. February 2017
+	* Added labels and text to simple and minimal node vis
+	* Flat detail is now minimal detail corresponding to cmvis
 1.0.4 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 13. February 2017
-        * Enabled separate output of stockholm alignment visualisation
+	* Enabled separate output of stockholm alignment visualisation
 	* Removed concatenated model visualisation
 1.0.3 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 29. December 2016
-        * Bugfix - reverted broken setting of svgsize
+	* Bugfix - reverted broken setting of svgsize
 1.0.2 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 29. December 2016
-        * Added size scaling to HMM drawing functions
+	* Added size scaling to HMM drawing functions
 1.0.1 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 22. December 2016
-        * Bugfix - added Bio.HMMCompare to exported modules
+	* Bugfix - added Bio.HMMCompare to exported modules
 1.0.0 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 22. December 2016
-        * Initial release
+	* Initial release

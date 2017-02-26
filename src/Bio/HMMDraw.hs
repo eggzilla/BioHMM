@@ -34,7 +34,7 @@ import Bio.StockholmFont
 
 drawSingleHMMComparison :: String -> Int -> String -> Double -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> [(QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)]
 drawSingleHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth scalef hmms alns comparisons
-   | modelDetail == "flat" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
+   | modelDetail == "minimal" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
    | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
    | modelDetail == "detailed" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
    | otherwise = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
@@ -47,7 +47,7 @@ drawSingleHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth scal
 
 drawSingleHMMER3s :: String -> Int -> Double -> Double -> String -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [(QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)]
 drawSingleHMMER3s modelDetail entryNumberCutoff maxWidth scalef emissiontype hmms alns
-  | modelDetail == "flat" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
+  | modelDetail == "minimal" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
   | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
   | modelDetail == "detailed" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
   | otherwise = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
@@ -59,7 +59,7 @@ drawSingleHMMER3s modelDetail entryNumberCutoff maxWidth scalef emissiontype hmm
 -- |
 drawHMMER3 :: String -> Int -> Double -> Double -> String -> V.Vector (String,Colour Double) -> (HM.HMMER3,Maybe S.StockholmAlignment, V.Vector (Int,V.Vector (Colour Double)), Colour Double) -> (QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)
 drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype nameColorVector (model,aln,comparisonNodeLabels,modelColor)
-   | modelDetail == "flat" = ((applyAll ([bg white]) flatNodesHeader) # scale scalef,alignmentDiagram)
+   | modelDetail == "minimal" = ((applyAll ([bg white]) minimalNodesHeader) # scale scalef,alignmentDiagram)
    | modelDetail == "simple" = ((applyAll ([bg white]) simpleNodesHeader) # scale scalef,alignmentDiagram)
    | modelDetail == "detailed" = ((applyAll ([bg white]) verboseNodesHeader) # scale scalef,alignmentDiagram)
    | otherwise = ((applyAll ([bg white]) verboseNodesHeader) # scale scalef,alignmentDiagram)
@@ -73,22 +73,14 @@ drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype nameColo
            nodeWidth = 6.0 :: Double
            nodeNumberPerRow = floor (maxWidth / nodeWidth - 2)
            nodesIntervals = makeNodeIntervals nodeNumberPerRow nodeNumber
-           flatNodes = hcat (V.toList (V.map (drawHMMNodeFlat comparisonNodeLabels)currentNodes)) # scale scalef
+           minimalNodes = hcat (V.toList (V.map (drawHMMNodeMinimal comparisonNodeLabels)currentNodes)) # scale scalef
            simpleNodes = hcat (V.toList (V.map (drawHMMNodeSimple alphabetSymbols emissiontype boxlength comparisonNodeLabels) currentNodes)) # scale scalef
            verboseNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawDetailedNodeRow alphabetSymbols emissiontype boxlength nodeNumber currentNodes comparisonNodeLabels) nodesIntervals))
-           flatNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,flatNodes])
+           minimalNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,minimalNodes])
            simpleNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,simpleNodes])
            verboseNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes])
-           --modelHeader = makeModelHeader (HM.name model) modelColor
            modelHeader = makeModelHeader (HM.name model) modelColor nameColorVector
            alignmentDiagram = maybe mempty (drawStockholmLines entriesNumberCutoff maxWidth nodeAlignmentColIndices comparisonNodeLabels) aln
-           --connectedNodes = makeConnections boxlength currentNodes
-           --selfconnectedNodes = makeSelfConnections boxlength currentNodes
-           --arrowList = map makeArrow connectedNodes ++ map makeSelfArrow selfconnectedNodes
-           --labelList = map makeLabel connectedNodes ++ map makeSelfLabel selfconnectedNodes
-
---makeModelHeader :: String -> Colour Double -> QDiagram Cairo V2 Double Any
---makeModelHeader mName modelColor = strutX 2 ||| setTitelLetter mName ||| strutX 1 ||| rect 4 4 # lw 0.1 # fc modelColor
 
 makeModelHeader :: String -> Colour Double -> V.Vector (String,Colour Double) -> QDiagram Cairo V2 Double Any
 makeModelHeader mName modelColor nameColorVector = strutX 2 ||| setModelName mName ||| strutX 1 ||| rect 12 12 # lw 0.1 # fc modelColor # translate (r2 (negate 0, 5)) ||| strutX 30 ||| modelLegend
@@ -122,8 +114,6 @@ makeNodeIntervals nodeNumberPerRow nodeNumber = rowIntervals
         rowNumber = ceiling $ (fromIntegral nodeNumber :: Double) / (fromIntegral nodeNumberPerRow :: Double)
         rowIntervals = V.map (setRowInterval nodeNumberPerRow nodeNumber) rowVector
 
-
-
 setRowInterval :: Int -> Int -> Int -> (Int,Int)
 setRowInterval nodeNumberPerRow nodeNumber nodeIndex = (rowStart,safeLength)
   where rowStart = nodeIndex*nodeNumberPerRow
@@ -147,15 +137,8 @@ drawDetailedNodeRow alphabetSymbols emissiontype boxLength lastIndex allNodes co
         lastRowConnections = makeLastRowConnections boxLength lastNode
         lastRowList = V.toList (V.map makeArrow lastRowConnections V.++ V.map makeLabel lastRowConnections)
 
---setLetter :: String -> QDiagram Cairo V2 Double Any 
---setLetter echar = alignedText 0.5 0.5 [echar] # fontSize 2 <> rect 1.0 1.0 # lw 0 -- # translate (r2 (negate 0.5, 0))
---setLetter t = textWithSize' t 2.0 
 setLabelLetter :: String -> QDiagram Cairo V2 Double Any
---setLabelLetter echar = alignedText 0.5 0.5 [echar] # fontSize 0.75 <> rect 0.4 0.5 # lw 0
 setLabelLetter t = textWithSize' t 2.0
---setTitelLetter :: String -> QDiagram Cairo V2 Double Any
---setTitelLetter echar = alignedText 0.5 0.5 [echar] # fontSize 4.0 <> rect 4.0 4.0 # lw 0
---setTitelLetter t = textWithSize' t 4.0
 
 makeLastRowConnections :: Double -> V.Vector HM.HMMER3Node -> V.Vector (String, String, Double, (Double, Double))
 makeLastRowConnections boxlength currentnodes =  mm1A V.++ md1A V.++ im1A V.++ dm1A V.++ dd1A
@@ -227,8 +210,8 @@ makeSelfLabel (n1,n2,weight,(xOffset,yOffset))=
       atop (position [(midpoint # translateX (negate 0.25 + xOffset) # translateY (0 + yOffset), setLabelLetter (show weight))])
 
 -- | 
-drawHMMNodeFlat ::  V.Vector (Int, V.Vector (Colour Double)) -> HM.HMMER3Node -> QDiagram Cairo V2 Double Any
-drawHMMNodeFlat  comparisonNodeLabels node = nodeBox 
+drawHMMNodeMinimal ::  V.Vector (Int, V.Vector (Colour Double)) -> HM.HMMER3Node -> QDiagram Cairo V2 Double Any
+drawHMMNodeMinimal  comparisonNodeLabels node = nodeBox 
   where idNumber = HM.nodeId node
         nid  = show idNumber
         nodeLabels = V.toList (snd (comparisonNodeLabels V.! idNumber))
@@ -262,7 +245,7 @@ idBox :: String -> [Colour Double] -> QDiagram Cairo V2 Double Any
 idBox nid nodeLabels = text' nid  <>  wheel nodeLabels <> rect 1.5 3 # lw 0
 -- # translate (r2 (negate ((fromIntegral ((length nid) * 2))/2), negate 1.25))
 simpleIdBox :: String -> [Colour Double] -> QDiagram Cairo V2 Double Any
-simpleIdBox nid nodeLabels = text' nid <>  wheel nodeLabels <> rect 3 3 # lw 0.1
+simpleIdBox nid nodeLabels = rect 6 6 # lw 0.1 <> text' nid <>  wheel nodeLabels
 
 emptyIdBox :: QDiagram Cairo V2 Double Any
 emptyIdBox = rect 1.5 1.5 # lw 0
