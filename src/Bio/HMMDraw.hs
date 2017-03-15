@@ -298,8 +298,8 @@ wheel colors = wheel' # rotate r
 -- B → M 1 , B → I 0 , B → D 1 ; I 0 → M 1 , I 0 → I 0
 beginState :: Double -> String -> QDiagram Cairo V2 Double Any
 --beginState boxlength nid = alignedText 0.5 0.5 "BEGIN" <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1
-beginState boxlength nid = textWithSize' "BEGIN" 1.5 # translate (r2 (negate 1.5,0)) <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1
-  where outerbox = rect 6 boxlength # lw 0.1 # fc white
+beginState boxlength nid = textWithSize' "BEGIN" 1.5 # translate (r2 (negate 1.5,0)) <> outerbox # named (nid ++ "m") <> rect 5 boxlength # named (nid ++ "d")  # lw 0.1
+  where outerbox = rect 5 boxlength # lw 0.1 # fc white
 
 endState :: Double -> Int -> QDiagram Cairo V2 Double Any
 --endState boxlength idNumber = alignedText 0.5 0.5 "END" <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1 <> rect 6 boxlength # named (nid ++ "i")  # lw 0.1
@@ -333,7 +333,7 @@ emissionEntry emissiontype (symbol,emission)
           textentry = textWithSize' (symbol ++ " " ++ printf "%.3f" emission) 1
           --barentry =  stroke (textSVG symbol 2) ||| bar emission
           --barentry = (alignedText 0 0.01 symbol  # translate (r2 (negate 0.25,negate 0.3)) <> (rect 2 1 # lw 0 )) ||| bar emission
-          barentry = (textWithSize' symbol 0.9 <> (rect 1 1 # lw 0 )) ||| strutX 1 ||| bar emission
+          barentry = (textWithSize' symbol 1.2 #  translate (r2 (0.4,0.1)) <> (rect 1 1 # lw 0 )) ||| strutX 1 ||| bar emission
 
 bar :: Double -> QDiagram Cairo V2 Double Any
 bar emission = rect (4 * emission) 1 # lw 0 # fc black # translate (r2 (negate (2 - (4 * emission/2)),0)) <> rect 4 1 # lw 0.03
