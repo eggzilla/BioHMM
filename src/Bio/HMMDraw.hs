@@ -69,7 +69,7 @@ drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype nameColo
            nodeAlignmentColIndices =  V.map (fromJust . HM.nma) currentNodes
            alphabet = HM.alpha model
            alphabetSymbols = HM.alphabetToSymbols alphabet
-           boxlength = (fromIntegral (length alphabetSymbols)) * 1.15  + 1
+           boxlength = (fromIntegral (length alphabetSymbols)) * 1.25  + 0.3
            nodeWidth = 6.0 :: Double
            nodeNumberPerRow = floor (maxWidth / nodeWidth - 2)
            nodesIntervals = makeNodeIntervals nodeNumberPerRow nodeNumber
@@ -83,7 +83,7 @@ drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype nameColo
            alignmentDiagram = maybe mempty (drawStockholmLines entriesNumberCutoff maxWidth nodeAlignmentColIndices comparisonNodeLabels) aln
 
 makeModelHeader :: String -> Colour Double -> V.Vector (String,Colour Double) -> QDiagram Cairo V2 Double Any
-makeModelHeader mName modelColor nameColorVector = strutX 2 ||| setModelName mName ||| strutX 1 ||| rect 12 12 # lw 0.1 # fc modelColor # translate (r2 (negate 0, 5)) ||| strutX 30 ||| modelLegend
+makeModelHeader mName modelColor nameColorVector = strutX 2 ||| setModelName mName ||| strutX 1 ||| rect 6 6 # lw 0.1 # fc modelColor # translate (r2 (negate 0, 3)) ||| strutX 30 ||| modelLegend
   where modelLegend = makeModelLegend otherModelsNameColorVector
         otherModelsNameColorVector = V.filter ((/=mName) . fst) nameColorVector
 
@@ -140,7 +140,7 @@ drawDetailedNodeRow alphabetSymbols emissiontype boxLength lastIndex allNodes co
         lastRowList = V.toList (V.map makeArrow lastRowConnections V.++ V.map makeLabel lastRowConnections)
 
 setLabelLetter :: String -> QDiagram Cairo V2 Double Any
-setLabelLetter t = textWithSize' t 2.0
+setLabelLetter t = textWithSize' t 1.8
 
 makeLastRowConnections :: Double -> V.Vector HM.HMMER3Node -> V.Vector (String, String, Double, (Double, Double))
 makeLastRowConnections boxlength currentnodes =  mm1A V.++ md1A V.++ im1A V.++ dm1A V.++ dd1A
@@ -163,11 +163,11 @@ makeSelfConnections :: Double -> V.Vector HM.HMMER3Node -> V.Vector (String, Str
 makeSelfConnections boxlength currentnodes = V.map (makeiiA boxlength) currentnodes
 
 makemm1A :: HM.HMMER3Node -> (String, String, Double, (Double, Double))
-makemm1A currentNode = (show (HM.nodeId currentNode) ++ "m", show (HM.nodeId currentNode + 1) ++ "m", maybe 0 (roundPos 2 . exp . negate) (HM.m2m currentNode),(0.1,negate 0.2))
+makemm1A currentNode = (show (HM.nodeId currentNode) ++ "m", show (HM.nodeId currentNode + 1) ++ "m", maybe 0 (roundPos 2 . exp . negate) (HM.m2m currentNode),(0.1,negate 0.3))
 makemiA :: Double -> HM.HMMER3Node -> (String, String, Double, (Double, Double))
 makemiA boxlength currentNode = (show (HM.nodeId currentNode) ++ "m", show (HM.nodeId currentNode) ++ "i",  maybe 0 (roundPos 2 . exp . negate) (HM.m2i currentNode),(0,setiayOffset boxlength))
 makemd1A :: Double -> HM.HMMER3Node -> (String, String, Double, (Double, Double))
-makemd1A _ currentNode = (show (HM.nodeId currentNode) ++ "m", show (HM.nodeId currentNode + 1) ++ "d", maybe 0 (roundPos 2 . exp . negate) (HM.m2d currentNode),(1.5,2.0))
+makemd1A _ currentNode = (show (HM.nodeId currentNode) ++ "m", show (HM.nodeId currentNode + 1) ++ "d", maybe 0 (roundPos 2 . exp . negate) (HM.m2d currentNode),(0.3,1.7))
 makeim1A :: Double -> HM.HMMER3Node -> (String, String, Double, (Double, Double))
 makeim1A boxlength currentNode = (show (HM.nodeId currentNode) ++ "i", show (HM.nodeId currentNode + 1) ++ "m", maybe 0 (roundPos 2 . exp . negate) (HM.i2m currentNode),(negate 0.1,setim1AOffset boxlength))
   where 
@@ -176,16 +176,16 @@ makeiiA _ currentNode = (show (HM.nodeId currentNode) ++ "i", show (HM.nodeId cu
 makedm1A :: Double -> HM.HMMER3Node -> (String, String, Double, (Double, Double))
 makedm1A _ currentNode = (show (HM.nodeId currentNode) ++ "d", show (HM.nodeId currentNode + 1) ++ "m", maybe 0 (roundPos 2 . exp . negate) (HM.d2m currentNode),(negate 1.5,3.0))
 makedd1A :: HM.HMMER3Node -> (String, String, Double, (Double, Double))
-makedd1A currentNode = (show (HM.nodeId currentNode) ++ "d", show (HM.nodeId currentNode + 1) ++ "d", maybe 0 (roundPos 2 . exp . negate) (HM.d2d currentNode),(0,1))
+makedd1A currentNode = (show (HM.nodeId currentNode) ++ "d", show (HM.nodeId currentNode + 1) ++ "d", maybe 0 (roundPos 2 . exp . negate) (HM.d2d currentNode),(negate 0.6,1))
 
 setiayOffset :: Double -> Double
 setiayOffset boxlength
   | boxlength <= 10 = 0.6
-  | otherwise = 5
+  | otherwise = 5.9
 
 setim1AOffset :: Double -> Double
 setim1AOffset boxlength
-  | boxlength <= 10 = negate 1.5
+  | boxlength <= 10 = negate 0.3
   | otherwise = negate 2.3
                 
 makeArrow :: (String,String,Double,(Double,Double)) -> QDiagram Cairo V2 Double Any -> QDiagram Cairo V2 Double Any
@@ -259,7 +259,7 @@ emptyIdBox :: QDiagram Cairo V2 Double Any
 emptyIdBox = rect 1.5 1.5 # lw 0
 
 rowStartBox :: Int -> Double -> QDiagram Cairo V2 Double Any
-rowStartBox idNumber boxlength = rect 0 1.5 #lw 0.0 === rect 0 6 # lw 0.1 # named (nid ++ "d") === rect 0 6 # lw 0.1 #named (nid ++ "i") === rect 0 (boxlength + 2) # lw 0.1 # named (nid ++ "m") ||| strutX 7
+rowStartBox idNumber boxlength = rect 0 1.5 #lw 0.0 === rect 0 6 # lw 0.1 # named (nid ++ "d") === rect 0 8 # lw 0.1 #named (nid ++ "i") === rect 0 (boxlength + 2) # lw 0.1 # named (nid ++ "m") ||| strutX 7
   where nid = show (idNumber - 1)
 
 rowEndBox :: Int -> Double -> QDiagram Cairo V2 Double Any
@@ -279,12 +279,17 @@ emptyInsertions :: QDiagram Cairo V2 Double Any
 emptyInsertions = rect 4.2426 4.2426 # lw 0 # rotateBy (1/8) # fc white
 
 matches :: String -> String -> Double -> HM.HMMER3Node -> QDiagram Cairo V2 Double Any
-matches alphabetSymbols emissiontype boxlength node = entries # translate (r2 (negate 2.5,boxlength/2 -1)) <> outerbox # named (nid ++ "m")
-  where outerbox = rect 6 boxlength # lw 0.1 # fc white
+matches alphabetSymbols emissiontype boxlength node = entries # translate (r2 (negate 2.5,(boxlength/2)- matchesOffset boxlength)) <> outerbox # named (nid ++ "m")
+  where outerbox = rect 6 (boxlength * 1.1) # lw 0.1 # fc white
         entries = vcat (map (emissionEntry emissiontype) symbolsAndEmissions)
         symbolsAndEmissions = zip (map wrap alphabetSymbols) (V.toList emissionEntries)
         emissionEntries = setEmissions emissiontype (HM.matchEmissions node)
         nid = show $ HM.nodeId node
+
+matchesOffset :: Double -> Double
+matchesOffset boxlength
+  | boxlength <= 10 = 0.5
+  | otherwise = 0
 
 wheel :: [Colour Double] -> QDiagram Cairo V2 Double Any
 wheel colors = wheel' # rotate r
@@ -298,8 +303,8 @@ wheel colors = wheel' # rotate r
 -- B → M 1 , B → I 0 , B → D 1 ; I 0 → M 1 , I 0 → I 0
 beginState :: Double -> String -> QDiagram Cairo V2 Double Any
 --beginState boxlength nid = alignedText 0.5 0.5 "BEGIN" <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1
-beginState boxlength nid = textWithSize' "BEGIN" 1.5 # translate (r2 (negate 1.5,0)) <> outerbox # named (nid ++ "m") <> rect 5 boxlength # named (nid ++ "d")  # lw 0.1
-  where outerbox = rect 5 boxlength # lw 0.1 # fc white
+beginState boxlength nid = textWithSize' "BEGIN" 1.5 # translate (r2 (negate 1.5,0)) <> outerbox # named (nid ++ "m") <> rect 5 (boxlength + 2) # named (nid ++ "d")  # lw 0.1
+  where outerbox = rect 5 (boxlength + 2) # lw 0.1 # fc white
 
 endState :: Double -> Int -> QDiagram Cairo V2 Double Any
 --endState boxlength idNumber = alignedText 0.5 0.5 "END" <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1 <> rect 6 boxlength # named (nid ++ "i")  # lw 0.1
@@ -333,7 +338,7 @@ emissionEntry emissiontype (symbol,emission)
           textentry = textWithSize' (symbol ++ " " ++ printf "%.3f" emission) 1
           --barentry =  stroke (textSVG symbol 2) ||| bar emission
           --barentry = (alignedText 0 0.01 symbol  # translate (r2 (negate 0.25,negate 0.3)) <> (rect 2 1 # lw 0 )) ||| bar emission
-          barentry = (textWithSize' symbol 1.2 #  translate (r2 (0.4,0.1)) <> (rect 1 1 # lw 0 )) ||| strutX 1 ||| bar emission
+          barentry = (textWithSize' symbol 1.1 #  translate (r2 (0.4,0.0)) <> (rect 1.3 1.1 # lw 0 )) ||| strutX 0.5 ||| bar emission
 
 bar :: Double -> QDiagram Cairo V2 Double Any
 bar emission = rect (4 * emission) 1 # lw 0 # fc black # translate (r2 (negate (2 - (4 * emission/2)),0)) <> rect 4 1 # lw 0.03
