@@ -128,8 +128,10 @@ drawDetailedNodeRow alphabetSymbols emissiontype boxLength lastIndex allNodes co
         nextIndex = currentIndex + nodeSliceLength
         detailedNodes = hcat (V.toList (V.map (drawHMMNodeVerbose alphabetSymbols emissiontype boxLength currentIndex nextIndex lastIndex comparisonNodeLabels) currentNodes))
         arrowNodes = currentNodes
-        connectedNodes = makeConnections boxLength arrowNodes
-        selfConnectedNodes = makeSelfConnections boxLength arrowNodes
+        allConnectedNodes = makeConnections boxLength arrowNodes
+        connectedNodes = V.filter (\(_,_,weight,_) -> weight >= 0.01) allConnectedNodes                
+        allSelfConnectedNodes = makeSelfConnections boxLength arrowNodes
+        selfConnectedNodes = V.filter (\(_,_,weight,_) -> weight >= 0.01) allSelfConnectedNodes
         arrowList = V.toList (V.map makeArrow connectedNodes V.++ V.map makeSelfArrow selfConnectedNodes)
         labelList = V.toList (V.map makeLabel connectedNodes V.++ V.map makeSelfLabel selfConnectedNodes)
         --add arrows and labels for transitions from previous row
@@ -144,7 +146,7 @@ makeLastRowConnections :: Double -> V.Vector HM.HMMER3Node -> V.Vector (String, 
 makeLastRowConnections boxlength currentnodes =  mm1A V.++ md1A V.++ im1A V.++ dm1A V.++ dd1A
   where mm1A = V.map makemm1A currentnodes
         md1A = V.map (makemd1A boxlength) currentnodes
-        im1A = V.map makeim1A currentnodes
+        im1A = V.map (makeim1A boxlength) currentnodes
         dm1A = V.map (makedm1A boxlength) currentnodes
         dd1A = V.map makedd1A currentnodes
 
@@ -153,7 +155,7 @@ makeConnections boxlength currentnodes =  mm1A V.++ miA V.++ md1A V.++ im1A V.++
   where mm1A = V.map makemm1A currentnodes
         miA = V.map (makemiA boxlength) currentnodes
         md1A = V.map (makemd1A boxlength) currentnodes
-        im1A = V.map makeim1A currentnodes
+        im1A = V.map (makeim1A boxlength) currentnodes
         dm1A = V.map (makedm1A boxlength) currentnodes
         dd1A = V.map makedd1A currentnodes
 
@@ -161,13 +163,14 @@ makeSelfConnections :: Double -> V.Vector HM.HMMER3Node -> V.Vector (String, Str
 makeSelfConnections boxlength currentnodes = V.map (makeiiA boxlength) currentnodes
 
 makemm1A :: HM.HMMER3Node -> (String, String, Double, (Double, Double))
-makemm1A currentNode = (show (HM.nodeId currentNode) ++ "m", show (HM.nodeId currentNode + 1) ++ "m", maybe 0 (roundPos 2 . exp . negate) (HM.m2m currentNode),(0,0.5))
+makemm1A currentNode = (show (HM.nodeId currentNode) ++ "m", show (HM.nodeId currentNode + 1) ++ "m", maybe 0 (roundPos 2 . exp . negate) (HM.m2m currentNode),(0.1,negate 0.2))
 makemiA :: Double -> HM.HMMER3Node -> (String, String, Double, (Double, Double))
 makemiA boxlength currentNode = (show (HM.nodeId currentNode) ++ "m", show (HM.nodeId currentNode) ++ "i",  maybe 0 (roundPos 2 . exp . negate) (HM.m2i currentNode),(0,setiayOffset boxlength))
 makemd1A :: Double -> HM.HMMER3Node -> (String, String, Double, (Double, Double))
 makemd1A _ currentNode = (show (HM.nodeId currentNode) ++ "m", show (HM.nodeId currentNode + 1) ++ "d", maybe 0 (roundPos 2 . exp . negate) (HM.m2d currentNode),(1.5,2.0))
-makeim1A :: HM.HMMER3Node -> (String, String, Double, (Double, Double))
-makeim1A currentNode = (show (HM.nodeId currentNode) ++ "i", show (HM.nodeId currentNode + 1) ++ "m", maybe 0 (roundPos 2 . exp . negate) (HM.i2m currentNode),(0,negate 0.1))
+makeim1A :: Double -> HM.HMMER3Node -> (String, String, Double, (Double, Double))
+makeim1A boxlength currentNode = (show (HM.nodeId currentNode) ++ "i", show (HM.nodeId currentNode + 1) ++ "m", maybe 0 (roundPos 2 . exp . negate) (HM.i2m currentNode),(negate 0.1,setim1AOffset boxlength))
+  where 
 makeiiA :: Double -> HM.HMMER3Node -> (String, String, Double, (Double, Double))
 makeiiA _ currentNode = (show (HM.nodeId currentNode) ++ "i", show (HM.nodeId currentNode) ++ "i", maybe 0 (roundPos 2 . exp . negate) (HM.i2i currentNode),(0,4.7))
 makedm1A :: Double -> HM.HMMER3Node -> (String, String, Double, (Double, Double))
@@ -180,6 +183,11 @@ setiayOffset boxlength
   | boxlength <= 10 = 0.6
   | otherwise = 5
 
+setim1AOffset :: Double -> Double
+setim1AOffset boxlength
+  | boxlength <= 10 = negate 1.5
+  | otherwise = negate 2.3
+                
 makeArrow :: (String,String,Double,(Double,Double)) -> QDiagram Cairo V2 Double Any -> QDiagram Cairo V2 Double Any
 makeArrow (lab1,lab2,weight,_) = connectOutside' arrowStyle1 lab1 lab2
   where arrowStyle1 = with & arrowHead .~ spike & shaftStyle %~ lw (local 0.1) & headLength .~ local 0.001 & shaftStyle %~ dashingG [weight, 0.1] 0 & headStyle %~ fc black . opacity (weight * 2)
@@ -295,7 +303,7 @@ beginState boxlength nid = textWithSize' "BEGIN" 1.5 # translate (r2 (negate 1.5
 
 endState :: Double -> Int -> QDiagram Cairo V2 Double Any
 --endState boxlength idNumber = alignedText 0.5 0.5 "END" <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1 <> rect 6 boxlength # named (nid ++ "i")  # lw 0.1
-endState boxlength idNumber = textWithSize' "END" 2 <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1 <> rect 6 boxlength # named (nid ++ "i")  # lw 0.1
+endState boxlength idNumber = strutX 0.5 ||| (textWithSize' "END" 2 <> outerbox # named (nid ++ "m") <> rect 6 boxlength # named (nid ++ "d")  # lw 0.1 <> rect 6 boxlength # named (nid ++ "i")  # lw 0.1)
   where outerbox = rect 6 boxlength # lw 0.1 # fc white
         nid = show (idNumber + 1)
 
