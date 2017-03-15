@@ -1,4 +1,7 @@
 -*-change-log-*-
+1.0.6 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 15. March 2017
+	* Added cutoff for displayed transition probabilities
+	* Improvements for detailed node layout
 1.0.5 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 26. February 2017
 	* Added labels and text to simple and minimal node vis
 	* Flat detail is now minimal detail corresponding to cmvis

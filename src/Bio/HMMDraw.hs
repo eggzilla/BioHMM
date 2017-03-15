@@ -32,12 +32,12 @@ import Data.List
 import Graphics.SVGFonts
 import Bio.StockholmFont
 
-drawSingleHMMComparison :: String -> Int -> String -> Double -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> [(QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)]
-drawSingleHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth scalef hmms alns comparisons
-   | modelDetail == "minimal" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
-   | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
-   | modelDetail == "detailed" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
-   | otherwise = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
+drawSingleHMMComparison :: String -> Int -> Double -> String -> Double -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> [(QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)]
+drawSingleHMMComparison modelDetail entryNumberCutoff transitionCutoff emissiontype maxWidth scalef hmms alns comparisons
+   | modelDetail == "minimal" = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
+   | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
+   | modelDetail == "detailed" = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
+   | otherwise = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
      where zippedInput = zip4 hmms alns comparisonNodeLabels (V.toList colorVector)
            colorVector = makeColorVector modelNumber
            modelNumber = length hmms
@@ -45,20 +45,20 @@ drawSingleHMMComparison modelDetail entryNumberCutoff emissiontype maxWidth scal
            nameColorVector = V.zipWith (\a b -> (a,b)) modelNames colorVector
            comparisonNodeLabels = map (getComparisonNodeLabels comparisons nameColorVector) hmms
 
-drawSingleHMMER3s :: String -> Int -> Double -> Double -> String -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [(QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)]
-drawSingleHMMER3s modelDetail entryNumberCutoff maxWidth scalef emissiontype hmms alns
-  | modelDetail == "minimal" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
-  | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
-  | modelDetail == "detailed" = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
-  | otherwise = map (drawHMMER3 modelDetail entryNumberCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
+drawSingleHMMER3s :: String -> Int -> Double -> Double -> Double -> String -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [(QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)]
+drawSingleHMMER3s modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype hmms alns
+  | modelDetail == "minimal" = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
+  | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
+  | modelDetail == "detailed" = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
+  | otherwise = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
     where zippedInput = zip4 hmms alns blankComparisonNodeLabels colorList
           blankComparisonNodeLabels = map getBlankComparisonNodeLabels hmms
           colorList = replicate (length hmms) white
           emptyColorNameVector = V.empty
 
 -- |
-drawHMMER3 :: String -> Int -> Double -> Double -> String -> V.Vector (String,Colour Double) -> (HM.HMMER3,Maybe S.StockholmAlignment, V.Vector (Int,V.Vector (Colour Double)), Colour Double) -> (QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)
-drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype nameColorVector (model,aln,comparisonNodeLabels,modelColor)
+drawHMMER3 :: String -> Int -> Double -> Double -> Double -> String -> V.Vector (String,Colour Double) -> (HM.HMMER3,Maybe S.StockholmAlignment, V.Vector (Int,V.Vector (Colour Double)), Colour Double) -> (QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)
+drawHMMER3 modelDetail entriesNumberCutoff transitionCutoff maxWidth scalef emissiontype nameColorVector (model,aln,comparisonNodeLabels,modelColor)
    | modelDetail == "minimal" = ((applyAll ([bg white]) minimalNodesHeader) # scale scalef,alignmentDiagram)
    | modelDetail == "simple" = ((applyAll ([bg white]) simpleNodesHeader) # scale scalef,alignmentDiagram)
    | modelDetail == "detailed" = ((applyAll ([bg white]) verboseNodesHeader) # scale scalef,alignmentDiagram)
@@ -75,7 +75,7 @@ drawHMMER3 modelDetail entriesNumberCutoff maxWidth scalef emissiontype nameColo
            nodesIntervals = makeNodeIntervals nodeNumberPerRow nodeNumber
            minimalNodes = hcat (V.toList (V.map (drawHMMNodeMinimal comparisonNodeLabels)currentNodes)) # scale scalef
            simpleNodes = hcat (V.toList (V.map (drawHMMNodeSimple alphabetSymbols emissiontype boxlength comparisonNodeLabels) currentNodes)) # scale scalef
-           verboseNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawDetailedNodeRow alphabetSymbols emissiontype boxlength nodeNumber currentNodes comparisonNodeLabels) nodesIntervals))
+           verboseNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawDetailedNodeRow alphabetSymbols emissiontype boxlength transitionCutoff nodeNumber currentNodes comparisonNodeLabels) nodesIntervals))
            minimalNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,minimalNodes])
            simpleNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,simpleNodes])
            verboseNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes])
@@ -120,8 +120,8 @@ setRowInterval nodeNumberPerRow nodeNumber nodeIndex = (rowStart,safeLength)
         rowLength = nodeNumberPerRow
         safeLength = if rowStart + rowLength >= nodeNumber then nodeNumber - rowStart else rowLength
 
-drawDetailedNodeRow :: String -> String -> Double -> Int -> V.Vector HM.HMMER3Node -> V.Vector (Int,V.Vector (Colour Double)) -> (Int, Int) -> QDiagram Cairo V2 Double Any
-drawDetailedNodeRow alphabetSymbols emissiontype boxLength lastIndex allNodes comparisonNodeLabels (currentIndex,nodeSliceLength) = detailedRow
+drawDetailedNodeRow :: String -> String -> Double -> Double -> Int -> V.Vector HM.HMMER3Node -> V.Vector (Int,V.Vector (Colour Double)) -> (Int, Int) -> QDiagram Cairo V2 Double Any
+drawDetailedNodeRow alphabetSymbols emissiontype transitionCutoff boxLength lastIndex allNodes comparisonNodeLabels (currentIndex,nodeSliceLength) = detailedRow
   where currentNodes = V.slice currentIndex nodeSliceLength allNodes
         --withLastRowNodes = V.slice (currentIndex -1) (nodeSliceLength +1) allNodes
         detailedRow = applyAll (lastRowList ++ arrowList ++ labelList) detailedNodes
@@ -129,9 +129,9 @@ drawDetailedNodeRow alphabetSymbols emissiontype boxLength lastIndex allNodes co
         detailedNodes = hcat (V.toList (V.map (drawHMMNodeVerbose alphabetSymbols emissiontype boxLength currentIndex nextIndex lastIndex comparisonNodeLabels) currentNodes))
         arrowNodes = currentNodes
         allConnectedNodes = makeConnections boxLength arrowNodes
-        connectedNodes = V.filter (\(_,_,weight,_) -> weight >= 0.01) allConnectedNodes                
+        connectedNodes = V.filter (\(_,_,weight,_) -> weight >= transitionCutoff) allConnectedNodes                
         allSelfConnectedNodes = makeSelfConnections boxLength arrowNodes
-        selfConnectedNodes = V.filter (\(_,_,weight,_) -> weight >= 0.01) allSelfConnectedNodes
+        selfConnectedNodes = V.filter (\(_,_,weight,_) -> weight >= transitionCutoff) allSelfConnectedNodes
         arrowList = V.toList (V.map makeArrow connectedNodes V.++ V.map makeSelfArrow selfConnectedNodes)
         labelList = V.toList (V.map makeLabel connectedNodes V.++ V.map makeSelfLabel selfConnectedNodes)
         --add arrows and labels for transitions from previous row
