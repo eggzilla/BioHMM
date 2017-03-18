@@ -1,4 +1,6 @@
 -*-change-log-*-
+1.0.7 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 19. March 2017
+	* Fixed a bug with incorrectly set transition cutoff
 1.0.6 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 15. March 2017
 	* Added cutoff for displayed transition probabilities
 	* Improvements for detailed node layout

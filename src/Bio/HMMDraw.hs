@@ -121,7 +121,7 @@ setRowInterval nodeNumberPerRow nodeNumber nodeIndex = (rowStart,safeLength)
         safeLength = if rowStart + rowLength >= nodeNumber then nodeNumber - rowStart else rowLength
 
 drawDetailedNodeRow :: String -> String -> Double -> Double -> Int -> V.Vector HM.HMMER3Node -> V.Vector (Int,V.Vector (Colour Double)) -> (Int, Int) -> QDiagram Cairo V2 Double Any
-drawDetailedNodeRow alphabetSymbols emissiontype transitionCutoff boxLength lastIndex allNodes comparisonNodeLabels (currentIndex,nodeSliceLength) = detailedRow
+drawDetailedNodeRow alphabetSymbols emissiontype boxLength transitionCutoff lastIndex allNodes comparisonNodeLabels (currentIndex,nodeSliceLength) = detailedRow
   where currentNodes = V.slice currentIndex nodeSliceLength allNodes
         --withLastRowNodes = V.slice (currentIndex -1) (nodeSliceLength +1) allNodes
         detailedRow = applyAll (lastRowList ++ arrowList ++ labelList) detailedNodes
