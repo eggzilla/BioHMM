@@ -273,5 +273,5 @@ optionalFloatToMaybe c
 parseOptionalStructureParameter :: GenParser Char st (Maybe Char)
 parseOptionalStructureParameter = do
   many1 (oneOf " ")
-  _stru <- oneOf "<>().:[]{}~,_ABCDEFGHIJKLMNOPQRST-"
+  _stru <- oneOf "<>().:[]{}~,_ABCDEFGHIJKLMNOPQRSTX-"
   return (optionalStructureToMaybe _stru)
