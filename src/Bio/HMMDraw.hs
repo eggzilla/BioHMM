@@ -5,15 +5,12 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Bio.HMMDraw
-    (
-      --drawHMMER3s,
-      drawHMMER3,
+    ( drawHMMER3,
       drawSingleHMMER3s,
       svgsize,
       diagramName,
       printHMM,
       getComparisonsHighlightParameters,
-      --drawHMMComparison,
       drawSingleHMMComparison
     ) where
 
@@ -32,7 +29,7 @@ import Data.List
 import Graphics.SVGFonts
 import Bio.StockholmFont
 
-drawSingleHMMComparison :: String -> Int -> Double -> String -> Double -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> [(QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)]
+drawSingleHMMComparison :: String -> Int -> Double -> String -> Double -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> [(QDiagram Cairo V2 Double Any,Maybe (QDiagram Cairo V2 Double Any))]
 drawSingleHMMComparison modelDetail entryNumberCutoff transitionCutoff emissiontype maxWidth scalef hmms alns comparisons
    | modelDetail == "minimal" = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
    | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype nameColorVector) zippedInput
@@ -45,7 +42,7 @@ drawSingleHMMComparison modelDetail entryNumberCutoff transitionCutoff emissiont
            nameColorVector = V.zipWith (\a b -> (a,b)) modelNames colorVector
            comparisonNodeLabels = map (getComparisonNodeLabels comparisons nameColorVector) hmms
 
-drawSingleHMMER3s :: String -> Int -> Double -> Double -> Double -> String -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [(QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)]
+drawSingleHMMER3s :: String -> Int -> Double -> Double -> Double -> String -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [(QDiagram Cairo V2 Double Any,Maybe (QDiagram Cairo V2 Double Any))]
 drawSingleHMMER3s modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype hmms alns
   | modelDetail == "minimal" = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
   | modelDetail == "simple" = map (drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype emptyColorNameVector) zippedInput
@@ -57,7 +54,7 @@ drawSingleHMMER3s modelDetail entryNumberCutoff transitionCutoff maxWidth scalef
           emptyColorNameVector = V.empty
 
 -- |
-drawHMMER3 :: String -> Int -> Double -> Double -> Double -> String -> V.Vector (String,Colour Double) -> (HM.HMMER3,Maybe S.StockholmAlignment, V.Vector (Int,V.Vector (Colour Double)), Colour Double) -> (QDiagram Cairo V2 Double Any,QDiagram Cairo V2 Double Any)
+drawHMMER3 :: String -> Int -> Double -> Double -> Double -> String -> V.Vector (String,Colour Double) -> (HM.HMMER3,Maybe S.StockholmAlignment, V.Vector (Int,V.Vector (Colour Double)), Colour Double) -> (QDiagram Cairo V2 Double Any,Maybe (QDiagram Cairo V2 Double Any))
 drawHMMER3 modelDetail entriesNumberCutoff transitionCutoff maxWidth scalef emissiontype nameColorVector (model,aln,comparisonNodeLabels,modelColor)
    | modelDetail == "minimal" = ((applyAll ([bg white]) minimalNodesHeader) # scale scalef,alignmentDiagram)
    | modelDetail == "simple" = ((applyAll ([bg white]) simpleNodesHeader) # scale scalef,alignmentDiagram)
@@ -80,7 +77,7 @@ drawHMMER3 modelDetail entriesNumberCutoff transitionCutoff maxWidth scalef emis
            simpleNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,simpleNodes])
            verboseNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes])
            modelHeader = makeModelHeader (HM.name model) modelColor nameColorVector
-           alignmentDiagram = maybe mempty (drawStockholmLines entriesNumberCutoff maxWidth nodeAlignmentColIndices comparisonNodeLabels) aln
+           alignmentDiagram = maybe Nothing (\a -> Just (drawStockholmLines entriesNumberCutoff maxWidth nodeAlignmentColIndices comparisonNodeLabels a)) aln
 
 makeModelHeader :: String -> Colour Double -> V.Vector (String,Colour Double) -> QDiagram Cairo V2 Double Any
 makeModelHeader mName modelColor nameColorVector = strutX 2 ||| setModelName mName ||| strutX 1 ||| rect 6 6 # lw 0.1 # fc modelColor # translate (r2 (negate 0, 3)) ||| strutX 30 ||| modelLegend
