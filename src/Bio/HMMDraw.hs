@@ -411,16 +411,19 @@ makeColorVector modelNumber = V.map (\(a,b,c) -> R.rgb a b c) modelRGBTupel
          modelRGBTupel = V.map (makeRGBTupel stepSize) indexVector
 
 makeRGBTupel :: Double -> Int -> (Double,Double,Double)
-makeRGBTupel stepSize modelNumber = (a,b,c)
+makeRGBTupel stepSize modelNumber = (normA,normB,normC)
   where  totalSize = fromIntegral modelNumber * stepSize
-         a = rgbBoundries (totalSize  - 255)/255
-         b = rgbBoundries (totalSize - a - 255)/255
-         c = rgbBoundries (totalSize - a - b)/255
+         a = rgbBoundries (totalSize  - 510)
+         b = rgbBoundries (totalSize - 255)
+         c = rgbBoundries totalSize 
+         normA = a/255 
+         normB = b/255
+         normC = c/255 
 
 rgbBoundries :: Double -> Double
 rgbBoundries rgbValue
-  | rgbValue>210 = 210
-  | rgbValue<50 = 50
+  | rgbValue>240 = 240
+  | rgbValue<10 = 10
   | otherwise = rgbValue
 
 text' :: String -> QDiagram Cairo V2 Double Any
