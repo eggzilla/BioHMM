@@ -90,10 +90,7 @@ drawStockholmLinesComparisonLabel entryNumberCutoff maxWidth comparisonNodeLabel
 
 getComparisonPerColumnLabels :: V.Vector (Int,V.Vector (Colour Double)) -> V.Vector HM.HMMER3Node -> V.Vector (Int, V.Vector (Colour Double))
 getComparisonPerColumnLabels comparisonNodeLabels nodes = columnComparisonLabels
-   where nodeNumber = fromIntegral $ V.length nodes
-         nodeAlignmentColIndices =  V.map (fromJust . HM.nma) nodes               
-         columnNumber = V.length nodeAlignmentColIndices
-         unsortedColumnComparisonLabel = map (nodeToColumnComparisonLabel nodes) (V.toList comparisonNodeLabels)
+   where unsortedColumnComparisonLabel = map (nodeToColumnComparisonLabel nodes) (V.toList comparisonNodeLabels)
          columnComparisonLabels = V.fromList (sortBy (compare `on` fst) unsortedColumnComparisonLabel)
 
 nodeToColumnComparisonLabel:: V.Vector HM.HMMER3Node -> (Int, V.Vector (Colour Double)) -> (Int,V.Vector (Colour Double))
