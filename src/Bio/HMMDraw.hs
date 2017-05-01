@@ -28,6 +28,7 @@ import qualified Data.Colour.SRGB.Linear as R
 import Data.List
 import Graphics.SVGFonts
 import Bio.StockholmFont
+import Data.Function   
 
 drawSingleHMMComparison :: String -> Int -> Double -> String -> Double -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> [(QDiagram Cairo V2 Double Any,Maybe (QDiagram Cairo V2 Double Any))]
 drawSingleHMMComparison modelDetail entryNumberCutoff transitionCutoff emissiontype maxWidth scalef hmms alns comparisons
@@ -55,7 +56,7 @@ drawSingleHMMER3s modelDetail entryNumberCutoff transitionCutoff maxWidth scalef
 
 -- |
 drawHMMER3 :: String -> Int -> Double -> Double -> Double -> String -> V.Vector (String,Colour Double) -> (HM.HMMER3,Maybe S.StockholmAlignment, V.Vector (Int,V.Vector (Colour Double)), Colour Double) -> (QDiagram Cairo V2 Double Any,Maybe (QDiagram Cairo V2 Double Any))
-drawHMMER3 modelDetail entriesNumberCutoff transitionCutoff maxWidth scalef emissiontype nameColorVector (model,aln,comparisonNodeLabels,modelColor)
+drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissiontype nameColorVector (model,aln,comparisonNodeLabels,modelColor)
    | modelDetail == "minimal" = ((applyAll ([bg white]) minimalNodesHeader) # scale scalef,alignmentDiagram)
    | modelDetail == "simple" = ((applyAll ([bg white]) simpleNodesHeader) # scale scalef,alignmentDiagram)
    | modelDetail == "detailed" = ((applyAll ([bg white]) verboseNodesHeader) # scale scalef,alignmentDiagram)
@@ -63,7 +64,7 @@ drawHMMER3 modelDetail entriesNumberCutoff transitionCutoff maxWidth scalef emis
      where nodeNumber = fromIntegral $ V.length currentNodes
            --nodes with begin node
            currentNodes = HM.begin model `V.cons` HM.nodes model
-           nodeAlignmentColIndices =  V.map (fromJust . HM.nma) currentNodes
+           --nodeAlignmentColIndices =  V.map (fromJust . HM.nma) currentNodes
            alphabet = HM.alpha model
            alphabetSymbols = HM.alphabetToSymbols alphabet
            boxlength = (fromIntegral (length alphabetSymbols)) * 1.25  + 0.3
@@ -77,8 +78,31 @@ drawHMMER3 modelDetail entriesNumberCutoff transitionCutoff maxWidth scalef emis
            simpleNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,simpleNodes])
            verboseNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes])
            modelHeader = makeModelHeader (HM.name model) modelColor nameColorVector
-           alignmentDiagram = maybe Nothing (\a -> Just (drawStockholmLines entriesNumberCutoff maxWidth nodeAlignmentColIndices comparisonNodeLabels a)) aln
+           alignmentDiagram = drawStockholmLinesComparisonLabel entryNumberCutoff maxWidth comparisonNodeLabels model aln              
 
+drawStockholmLinesComparisonLabel :: Int -> Double -> V.Vector (Int,V.Vector (Colour Double)) -> HM.HMMER3 -> Maybe S.StockholmAlignment -> Maybe (QDiagram Cairo V2 Double Any)
+drawStockholmLinesComparisonLabel entryNumberCutoff maxWidth comparisonNodeLabels model maybeAln
+   | isJust maybeAln = Just alignmentVis
+   | otherwise = Nothing
+     where aln = fromJust maybeAln
+           columnComparisonLabels = getComparisonPerColumnLabels comparisonNodeLabels model
+           alignmentVis = drawStockholmLines entryNumberCutoff maxWidth columnComparisonLabels aln
+
+getComparisonPerColumnLabels :: V.Vector (Int,V.Vector (Colour Double)) -> HM.HMMER3 -> V.Vector (Int, V.Vector (Colour Double))
+getComparisonPerColumnLabels comparisonNodeLabels model = columnComparisonLabels
+   where nodeNumber = fromIntegral $ V.length currentNodes
+         currentNodes = HM.begin model `V.cons` HM.nodes model
+         nodeAlignmentColIndices =  V.map (fromJust . HM.nma) currentNodes               
+         columnNumber = V.length nodeAlignmentColIndices
+         unsortedColumnComparisonLabel = map (nodeToColumnComparisonLabel currentNodes) (V.toList comparisonNodeLabels)
+         columnComparisonLabels = V.fromList (sortBy (compare `on` fst) unsortedColumnComparisonLabel)
+
+nodeToColumnComparisonLabel:: V.Vector HM.HMMER3Node -> (Int, V.Vector (Colour Double)) -> (Int,V.Vector (Colour Double))
+nodeToColumnComparisonLabel nodes (nodeIndex,colors) = colLabel
+  where currentNode = (V.!) nodes nodeIndex
+        colIndex = fromJust (HM.nma currentNode)
+        colLabel = (colIndex,colors)                                 
+                                  
 makeModelHeader :: String -> Colour Double -> V.Vector (String,Colour Double) -> QDiagram Cairo V2 Double Any
 makeModelHeader mName modelColor nameColorVector = strutX 2 ||| setModelName mName ||| strutX 1 ||| rect 6 6 # lw 0.1 # fc modelColor # translate (r2 (negate 0, 3)) ||| strutX 30 ||| modelLegend
   where modelLegend = makeModelLegend otherModelsNameColorVector
