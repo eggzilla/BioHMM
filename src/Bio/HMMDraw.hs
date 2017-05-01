@@ -78,23 +78,22 @@ drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissi
            simpleNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,simpleNodes])
            verboseNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes])
            modelHeader = makeModelHeader (HM.name model) modelColor nameColorVector
-           alignmentDiagram = drawStockholmLinesComparisonLabel entryNumberCutoff maxWidth comparisonNodeLabels model aln              
+           alignmentDiagram = drawStockholmLinesComparisonLabel entryNumberCutoff maxWidth comparisonNodeLabels currentNodes aln              
 
-drawStockholmLinesComparisonLabel :: Int -> Double -> V.Vector (Int,V.Vector (Colour Double)) -> HM.HMMER3 -> Maybe S.StockholmAlignment -> Maybe (QDiagram Cairo V2 Double Any)
-drawStockholmLinesComparisonLabel entryNumberCutoff maxWidth comparisonNodeLabels model maybeAln
+drawStockholmLinesComparisonLabel :: Int -> Double -> V.Vector (Int,V.Vector (Colour Double)) -> V.Vector HM.HMMER3Node -> Maybe S.StockholmAlignment -> Maybe (QDiagram Cairo V2 Double Any)
+drawStockholmLinesComparisonLabel entryNumberCutoff maxWidth comparisonNodeLabels nodes maybeAln
    | isJust maybeAln = Just alignmentVis
    | otherwise = Nothing
      where aln = fromJust maybeAln
-           columnComparisonLabels = getComparisonPerColumnLabels comparisonNodeLabels model
+           columnComparisonLabels = getComparisonPerColumnLabels comparisonNodeLabels nodes
            alignmentVis = drawStockholmLines entryNumberCutoff maxWidth columnComparisonLabels aln
 
-getComparisonPerColumnLabels :: V.Vector (Int,V.Vector (Colour Double)) -> HM.HMMER3 -> V.Vector (Int, V.Vector (Colour Double))
-getComparisonPerColumnLabels comparisonNodeLabels model = columnComparisonLabels
-   where nodeNumber = fromIntegral $ V.length currentNodes
-         currentNodes = HM.begin model `V.cons` HM.nodes model
-         nodeAlignmentColIndices =  V.map (fromJust . HM.nma) currentNodes               
+getComparisonPerColumnLabels :: V.Vector (Int,V.Vector (Colour Double)) -> V.Vector HM.HMMER3Node -> V.Vector (Int, V.Vector (Colour Double))
+getComparisonPerColumnLabels comparisonNodeLabels nodes = columnComparisonLabels
+   where nodeNumber = fromIntegral $ V.length nodes
+         nodeAlignmentColIndices =  V.map (fromJust . HM.nma) nodes               
          columnNumber = V.length nodeAlignmentColIndices
-         unsortedColumnComparisonLabel = map (nodeToColumnComparisonLabel currentNodes) (V.toList comparisonNodeLabels)
+         unsortedColumnComparisonLabel = map (nodeToColumnComparisonLabel nodes) (V.toList comparisonNodeLabels)
          columnComparisonLabels = V.fromList (sortBy (compare `on` fst) unsortedColumnComparisonLabel)
 
 nodeToColumnComparisonLabel:: V.Vector HM.HMMER3Node -> (Int, V.Vector (Colour Double)) -> (Int,V.Vector (Colour Double))
