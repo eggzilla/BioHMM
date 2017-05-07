@@ -1,4 +1,7 @@
 -*-change-log-*-
+1.1.1 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 7. May 2017
+	* Labels for columns are now passed to alignment visualisation instead of nodes
+	* Improved mapping node to column labels
 1.1.0 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 13. April 2017
 	* Fixed sampling of colors for multiple models
 1.0.9 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 13. April 2017
