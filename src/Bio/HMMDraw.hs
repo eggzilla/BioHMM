@@ -24,11 +24,11 @@ import Data.Maybe
 import qualified Data.Vector as V
 import Bio.HMMCompareResult
 import Bio.StockholmDraw
---import qualified Data.Colour.SRGB.Linear as R
 import Data.List
 import Graphics.SVGFonts
 import Bio.StockholmFont
 import Data.Function   
+import qualified Data.Colour.SRGB.Linear as R
 
 drawSingleHMMComparison :: String -> Int -> Double -> String -> Double -> Double -> [HM.HMMER3] -> [Maybe S.StockholmAlignment] -> [HMMCompareResult] -> [(QDiagram Cairo V2 Double Any,Maybe (QDiagram Cairo V2 Double Any))]
 drawSingleHMMComparison modelDetail entryNumberCutoff transitionCutoff emissiontype maxWidth scalef hmms alns comparisons
@@ -426,7 +426,7 @@ makeBlankComparisonNodeLabel nodeNumber = (nodeNumber,V.singleton white)
 
 makeColorVector :: Int -> V.Vector (Colour Double)
 makeColorVector modelNumber = V.take modelNumber colorVector
-   where colorVector = V.fromList [crimson, moccasin, lime, seagreen, aqua ,darkorange ,blue, blueviolet ,brown ,burlywood ,cadetblue ,chartreuse ,chocolate ,coral ,cornflowerblue ,cornsilk ,cyan ,darkblue ,darkcyan ,darkgoldenrod ,darkgray ,darkgreen ,darkgrey ,darkkhaki ,darkmagenta ,darkolivegreen ,darkorchid ,darkred ,darksalmon ,darkseagreen ,darkslateblue ,darkslategray ,darkslategrey ,darkturquoise ,darkviolet ,deeppink ,deepskyblue ,dimgray ,dimgrey ,dodgerblue ,firebrick ,forestgreen ,fuchsia ,gainsboro ,gold ,goldenrod ,gray ,grey ,green ,greenyellow ,honeydew ,hotpink ,indianred,indigo ,ivory ,khaki ,lavender ,lavenderblush ,lawngreen ,lemonchiffon ,lime ,limegreen ,linen ,magenta ,maroon ,mediumaquamarine ,mediumblue ,mediumorchid ,mediumpurple ,mediumseagreen ,mediumslateblue ,mediumspringgreen ,mediumturquoise ,mediumvioletred ,midnightblue ,mintcream ,mistyrose ,navy ,oldlace ,olive ,olivedrab ,orange ,orangered ,orchid ,papayawhip ,peachpuff ,peru ,pink ,plum ,powderblue ,purple ,red ,rosybrown ,royalblue ,saddlebrown ,salmon ,sandybrown ,seagreen]
+   where colorVector = V.fromList [R.rgb 166 206 227, R.rgb 31 120 180, R.rgb 178 223 138, R.rgb 51 160 44, R.rgb 251 154 153, R.rgb 227 26 28, R.rgb 253 191 111, R.rgb 255 127 0, R.rgb 202 178 214, R.rgb 106 61 154, R.rgb 255 255 153, R.rgb 177 89 40, moccasin, lime, seagreen, aqua ,darkorange ,blue, blueviolet ,brown ,burlywood ,cadetblue ,chartreuse ,chocolate ,coral ,cornflowerblue ,cornsilk ,cyan ,darkblue ,darkcyan ,darkgoldenrod ,darkgray ,darkgreen ,darkgrey ,darkkhaki ,darkmagenta ,darkolivegreen ,darkorchid ,darkred ,darksalmon ,darkseagreen ,darkslateblue ,darkslategray ,darkslategrey ,darkturquoise ,darkviolet ,deeppink ,deepskyblue ,dimgray ,dimgrey ,dodgerblue ,firebrick ,forestgreen ,fuchsia ,gainsboro ,gold ,goldenrod ,gray ,grey ,green ,greenyellow ,honeydew ,hotpink ,indianred,indigo ,ivory ,khaki ,lavender ,lavenderblush ,lawngreen ,lemonchiffon ,lime ,limegreen ,linen ,magenta ,maroon ,mediumaquamarine ,mediumblue ,mediumorchid ,mediumpurple ,mediumseagreen ,mediumslateblue ,mediumspringgreen ,mediumturquoise ,mediumvioletred ,midnightblue ,mintcream ,mistyrose ,navy ,oldlace ,olive ,olivedrab ,orange ,orangered ,orchid ,papayawhip ,peachpuff ,peru ,pink ,plum ,powderblue ,purple ,red ,rosybrown ,royalblue ,saddlebrown ,salmon ,sandybrown ,seagreen]
 
 --makeColorVector :: Int -> V.Vector (Colour Double)
 --makeColorVector modelNumber = V.map (\(a,b,c) -> R.rgb a b c) modelRGBTupel

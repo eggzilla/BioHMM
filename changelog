@@ -1,4 +1,6 @@
 -*-change-log-*-
+1.1.4 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 22. May 2017
+	* Color scheme is now more robust for grayscale-printing
 1.1.3 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 9. May 2017
 	* Now using same simplified label color scheme as CMDraw 
 1.1.2 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 7. May 2017
