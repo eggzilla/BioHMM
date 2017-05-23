@@ -1,4 +1,6 @@
 -*-change-log-*-
+1.1.6 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 23. May 2017
+	* Now using sRGB colors, some improvements for color-blind users
 1.1.5 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 23. May 2017
 	* Fixed normalization of newly added colors
 1.1.4 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 22. May 2017
