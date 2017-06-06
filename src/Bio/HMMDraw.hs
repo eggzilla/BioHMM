@@ -101,7 +101,7 @@ nodeToColumnComparisonLabel nodes (nodeIndex,colors) = colLabel
         colLabel = (colIndex,colors)                                 
                                   
 makeModelHeader :: String -> Colour Double -> V.Vector (String,Colour Double) -> QDiagram Cairo V2 Double Any
-makeModelHeader mName modelColor nameColorVector = strutX 2 ||| setModelName mName ||| strutX 1 ||| rect 6 6 # lw 0.1 # fc modelColor # translate (r2 (negate 0, 3)) ||| strutX 30 ||| modelLegend
+makeModelHeader mName modelColor nameColorVector = (strutX 2 ||| setModelName mName ||| strutX 1 ||| rect 6 6 # lw 0.1 # fc modelColor # translate (r2 (negate 0, 3))) === strutY 1 === (strutX 30 ||| modelLegend)
   where modelLegend = makeModelLegend otherModelsNameColorVector
         otherModelsNameColorVector = V.filter ((/=mName) . fst) nameColorVector
 
