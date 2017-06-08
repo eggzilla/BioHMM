@@ -74,8 +74,8 @@ drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissi
            nodesIntervals = makeNodeIntervals nodeNumberPerRow nodeNumber
            --minimalNodes = hcat (V.toList (V.map (drawHMMNodeMinimal comparisonNodeLabels)currentNodes)) # scale scalef
            --simpleNodes = hcat (V.toList (V.map (drawHMMNodeSimple alphabetSymbols emissiontype boxlength comparisonNodeLabels) currentNodes)) # scale scalef
-           minimalNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawMinimalNodeRow alphabetSymbols emissiontype boxlength transitionCutoff nodeNumber currentNodes comparisonNodeLabels) nodesIntervals))
-           simpleNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawSimpleNodeRow alphabetSymbols emissiontype boxlength transitionCutoff nodeNumber currentNodes comparisonNodeLabels) nodesIntervals))
+           minimalNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawMinimalNodeRow currentNodes comparisonNodeLabels) nodesIntervals))
+           simpleNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawSimpleNodeRow alphabetSymbols emissiontype boxlength currentNodes comparisonNodeLabels) nodesIntervals))
            verboseNodes = vcat' with { _sep = 3 } (V.toList (V.map (drawDetailedNodeRow alphabetSymbols emissiontype boxlength transitionCutoff nodeNumber currentNodes comparisonNodeLabels) nodesIntervals))
            minimalNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,minimalNodes])
            simpleNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,simpleNodes])
@@ -140,16 +140,14 @@ setRowInterval nodeNumberPerRow nodeNumber nodeIndex = (rowStart,safeLength)
         rowLength = nodeNumberPerRow
         safeLength = if rowStart + rowLength >= nodeNumber then nodeNumber - rowStart else rowLength
 
-drawMinimalNodeRow :: String -> String -> Double -> Double -> Int -> V.Vector HM.HMMER3Node -> V.Vector (Int,V.Vector (Colour Double)) -> (Int, Int) -> QDiagram Cairo V2 Double Any
-drawMinimalNodeRow alphabetSymbols emissiontype boxLength transitionCutoff lastIndex allNodes comparisonNodeLabels (currentIndex,nodeSliceLength) = simpleNodes
+drawMinimalNodeRow :: V.Vector HM.HMMER3Node -> V.Vector (Int,V.Vector (Colour Double)) -> (Int, Int) -> QDiagram Cairo V2 Double Any
+drawMinimalNodeRow allNodes comparisonNodeLabels (currentIndex,nodeSliceLength) = simpleNodes
   where currentNodes = V.slice currentIndex nodeSliceLength allNodes
-        nextIndex = currentIndex + nodeSliceLength
         simpleNodes = hcat (V.toList (V.map (drawHMMNodeMinimal comparisonNodeLabels) currentNodes))
                       
-drawSimpleNodeRow :: String -> String -> Double -> Double -> Int -> V.Vector HM.HMMER3Node -> V.Vector (Int,V.Vector (Colour Double)) -> (Int, Int) -> QDiagram Cairo V2 Double Any
-drawSimpleNodeRow alphabetSymbols emissiontype boxLength transitionCutoff lastIndex allNodes comparisonNodeLabels (currentIndex,nodeSliceLength) = simpleNodes
+drawSimpleNodeRow :: String -> String -> Double -> V.Vector HM.HMMER3Node -> V.Vector (Int,V.Vector (Colour Double)) -> (Int, Int) -> QDiagram Cairo V2 Double Any
+drawSimpleNodeRow alphabetSymbols emissiontype boxLength allNodes comparisonNodeLabels (currentIndex,nodeSliceLength) = simpleNodes
   where currentNodes = V.slice currentIndex nodeSliceLength allNodes
-        nextIndex = currentIndex + nodeSliceLength
         simpleNodes = hcat (V.toList (V.map (drawHMMNodeSimple alphabetSymbols emissiontype boxLength comparisonNodeLabels) currentNodes))
                      
 drawDetailedNodeRow :: String -> String -> Double -> Double -> Int -> V.Vector HM.HMMER3Node -> V.Vector (Int,V.Vector (Colour Double)) -> (Int, Int) -> QDiagram Cairo V2 Double Any

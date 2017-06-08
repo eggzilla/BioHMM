@@ -2,7 +2,7 @@
 
 module Bio.HMMCompareResult
     (
-     HMMCompareResult,
+     HMMCompareResult(..),
      parseHMMCompareResult,
      readHMMCompareResult,
      model1Name,
