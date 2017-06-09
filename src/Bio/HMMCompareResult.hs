@@ -72,7 +72,6 @@ genParseHMMCompareResult = do
     _ <- char '['
     nodes2 <- many1 parseMatchedNodes
     _ <- char ']'
-    newline
     return $ HMMCompareResult name1 name2 (readDouble score1) (readDouble score2) linkseq nodes1 nodes2
 
 -- | Parse indices of matched nodes between models as integers

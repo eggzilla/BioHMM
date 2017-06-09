@@ -1,4 +1,6 @@
 -*-change-log-*-
+1.1.9 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 9. June 2017
+	* Changed HMMCompare parsing for more similarity to CMCompare parsing
 1.1.8 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 8. June 2017
 	* Minimal and simple visualisation now also support line mode
 	* Added show instance for HMMCompareResult
