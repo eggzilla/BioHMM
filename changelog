@@ -1,4 +1,7 @@
 -*-change-log-*-
+1.2.0 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 9. June 2017
+	* Fixed a bug where comparison nodes from the other model were used
+	* Fixed alignment width
 1.1.9 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 9. June 2017
 	* Changed HMMCompare parsing for more similarity to CMCompare parsing
 1.1.8 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 8. June 2017

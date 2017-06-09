@@ -81,7 +81,7 @@ drawHMMER3 modelDetail entryNumberCutoff transitionCutoff maxWidth scalef emissi
            simpleNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,simpleNodes])
            verboseNodesHeader = alignTL (vcat' with { _sep = 5 }  [modelHeader,verboseNodes])
            modelHeader = makeModelHeader (HM.name model) modelColor nameColorVector
-           alignmentDiagram = drawStockholmLinesComparisonLabel entryNumberCutoff maxWidth comparisonNodeLabels currentNodes aln              
+           alignmentDiagram = drawStockholmLinesComparisonLabel entryNumberCutoff (200 :: Double) comparisonNodeLabels currentNodes aln              
 
 drawStockholmLinesComparisonLabel :: Int -> Double -> V.Vector (Int,V.Vector (Colour Double)) -> V.Vector HM.HMMER3Node -> Maybe S.StockholmAlignment -> Maybe (QDiagram Cairo V2 Double Any)
 drawStockholmLinesComparisonLabel entryNumberCutoff maxWidth comparisonNodeLabels nodes maybeAln
@@ -408,9 +408,9 @@ getComparisonNodeLabels :: [HMMCompareResult] -> V.Vector (String, Colour Double
 getComparisonNodeLabels comparsionResults colorVector model = comparisonNodeLabels
    where modelName = HM.name model
          relevantComparisons1 = filter ((modelName==) . model1Name) comparsionResults
-         modelNodeInterval1 = map (\a -> (model2Name a,model2matchednodes a)) relevantComparisons1
+         modelNodeInterval1 = map (\a -> (model2Name a,model1matchednodes a)) relevantComparisons1
          relevantComparisons2 = filter ((modelName==) . model2Name) comparsionResults
-         modelNodeInterval2 = map (\a -> (model1Name a,model1matchednodes a)) relevantComparisons2
+         modelNodeInterval2 = map (\a -> (model1Name a,model2matchednodes a)) relevantComparisons2
          modelNodeIntervals =  V.fromList (modelNodeInterval1 ++ modelNodeInterval2)
          colorNodeIntervals = V.map (modelToColor colorVector) modelNodeIntervals
          nodeNumber = V.length (HM.nodes model)
