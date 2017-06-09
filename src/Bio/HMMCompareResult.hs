@@ -5,20 +5,13 @@ module Bio.HMMCompareResult
      HMMCompareResult(..),
      parseHMMCompareResult,
      readHMMCompareResult,
-     model1Name,
-     model2Name,
-     linkscore1,
-     linkscore2,
-     linksequence,
-     model1matchednodes,
-     model2matchednodes,
      getHMMCompareResults,
      getModelsNames,
      getModelNames
     ) where
 
 import Text.ParserCombinators.Parsec
---import Control.Monad
+import Data.List
 
 -- | Datastructure for result strings of comparisons between covariance models by HMMCompare
 data HMMCompareResult = HMMCompareResult
@@ -29,7 +22,13 @@ data HMMCompareResult = HMMCompareResult
     linksequence  :: String,
     model1matchednodes :: [Int],
     model2matchednodes :: [Int]
-  } deriving (Show)
+  } deriving ()
+
+instance Show HMMCompareResult where
+  show (HMMCompareResult _model1Name _model2Name _linkscore1 _linkscore2 _linksequence  _model1matchednodes _model2matchednodes) =  _model1Name ++ "   " ++ _model2Name ++ "     " ++ show _linkscore1 ++ "     " ++ show _linkscore2 ++ " " ++ _linksequence ++ " " ++ formatMatchedNodes _model1matchednodes ++ " " ++ formatMatchedNodes _model2matchednodes ++ "\n"
+
+formatMatchedNodes :: [Int] -> String
+formatMatchedNodes nodes = "[" ++ intercalate "," (map show nodes) ++ "]"
 
 -- | parse HMMCompareResult model from input string
 parseHMMCompareResult :: String -> Either ParseError [HMMCompareResult]

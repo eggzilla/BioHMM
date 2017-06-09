@@ -1,6 +1,7 @@
 -*-change-log-*-
 1.1.8 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 8. June 2017
 	* Minimal and simple visualisation now also support line mode
+	* Added show instance for HMMCompareResult
 1.1.7 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 7. June 2017
 	* Improved placment of legend
 1.1.6 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 23. May 2017
